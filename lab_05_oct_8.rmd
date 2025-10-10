@@ -5,6 +5,7 @@ date: "2025-01-16"
 output: html_document
 ---
 ###Akira Kyles, 10/8/2025
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -96,8 +97,12 @@ baltimore_overdoses <- read_csv("tabula-Baltimore County; Carey, Samantha log OD
 baltimore_overdoses
 ```
 ```{r}
-baltimore_overdoses |> mutate(od_dates=mdy(od_dates))
+bmore_ods <- baltimore_overdoses |> mutate(od_dates=mdy(od_dates))
 ```
+```{r}
+head(bmore_ods)
+```
+
 ## Answer questions
 
 Q1. Write code to generate the number of calls that occurred on each
@@ -106,7 +111,7 @@ date.
 A1.
 
 ```{r}
-baltimore_overdoses |> 
+bmore_ods |> 
   group_by(od_dates) |> 
   summarise(count=n()) |> 
   arrange(desc(count))
@@ -137,18 +142,26 @@ number of all calls.
 
 
 ```{r}
-baltimore_overdoses |> 
-  wday(
-    x,
-  label = FALSE,
+bmore_ods <- bmore_ods |> 
+  mutate(weekday = wday(
+  od_dates,
+  label = TRUE,
   abbr = TRUE,
-  week_start = getOption("od_dates", 7),
-  locale = Sys.getlocale("od_time")
-)
+  week_start = getOption("lubridate.week.start", 7),
+  locale = Sys.getlocale("LC_TIME")
+)) 
+
+weekly_calls <- bmore_ods |> 
+  group_by(weekday)|> 
+  summarise(count = n()) |> 
+  mutate(percentage = count / sum(count) * 100) |> 
+  arrange(desc(count))
+   
 ```
 
-**Q2a. Write an answer describing your findings.**
 
+**Q2a. Write an answer describing your findings.**
+###Just as I figured, weekend days have the highest percentage of call rates. It also made sense for Friday to have the third highest rate but I was surprised that Tuesday was the fourth highest. 
 
 Q3. Now let's look at locations. 
 
