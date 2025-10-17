@@ -240,15 +240,20 @@ baltimore_911_with_demographics <-  baltimore_calls|> left_join(maryland_zips, j
 
 Q1. Let's start with the "combined_911" data from Allegany, Cecil and Carroll counties.
 
-Q1a: Write code to generate a dataframe that shows the total number of calls for each county. 
+Q1a: Write code to generate a dataframe that shows the total number of calls for each county.
 
 
 ```{r}
+md_counties_acc|> 
+ select(county) |>
+  group_by(county) |> 
+  summarise(count=n()) |> 
+  arrange(desc(count))
 ```
 Q1b: Write the answer: What's the order of counties from most calls to least?
 
 **Write the answer:**
-
+### The order from most to lease calls is Carroll, Cecil then Allegany. 
 
 
 Q2. Use the "combined_911" data. Write code to do the following:
@@ -257,8 +262,14 @@ Q2. Use the "combined_911" data. Write code to do the following:
 -- Show the total number of calls per county and month. 
 
 ```{r}
+md_counties_acc <- md_counties_acc |>
+  mutate(month(date))
 
-
+md_counties_acc |> 
+  group_by(`month(date)`, county) |> 
+  summarise(count = n()) |>
+  arrange(desc(count))
+  
 ```
 
 
@@ -266,17 +277,22 @@ Q2a: Are there any outliers or noteworthy results? Describe the general pattern 
 
 **Write answer here:**
 
+### Looking at the top of this data set, it would look more like Allegany county would have more calls than Carroll or Cecil County but from the previous results, we know that's not the case. We can see that August has the highest amount of calls for all three counties 
+
 Q2b: Use "combined_911" data and write code to calculate the most calls per county and location. 
 
 ```{r}
-
+md_counties_acc |> 
+  group_by(county, location) |> 
+  summarise(count = n()) |>
+  arrange(desc(count))
 
 ```
 
 Q2c: Which location had the most calls - where and what is that location?
 
 **Write answer here:**
-
+###The most calls were at 314 GROVE NECK RD EARLEVILLE, MD, which houses Recovery Centers of America at Bracebridge Hall, a rehab center. 
 
 
 Q3. Now let's use the Baltimore City data, "baltimore_911_with_demographics." 
@@ -286,28 +302,46 @@ Write code to filter for calls in zip codes where the percentage of under 18 pop
 Next, show the zip code and population and how many calls occurred in each of those zip codes.
 
 ```{r}
-
-
-
+baltimore_911_with_demographics |>
+  filter(plt18sp >= "75.2") |>
+  group_by(zip_code, plt18sp) |>
+   summarise(count=n()) |> 
+  arrange(desc(count))
 ```
 
 
 Q3a: Where are those zip codes in the city?
 
 **Write the answer here:**
+###The 21217 zip code is just northeast of downtown Baltimore and just south of the Maryland Zoo in Baltimore. 
 
 Q4: Continuing with the baltimore_911_with_demographics data. Take the table you just created in Q3 and modify it.
 
 Add a column that calculates the number of calls per 1,000 people for those zip codes. To calculate a per capita rate, you might find this short guide handy: [https://observablehq.com/\@palewire/per-capita-calculator](https://observablehq.com/@palewire/per-capita-calculator){.uri}.
 
 ```{r}
-
+baltimore_911_with_demographics |>
+  filter(plt18sp >= "75.2") |>
+  group_by(zip_code, plt18sp) |>
+   summarise(count=n()) |> 
+  mutate(percapita = (plt18sp/count)*1000) |>
+  arrange(desc(percapita))
 
 ```
 
 
 Q4a: Which zip code has the highest rate of calls per 1,000 people? Find the neighborhoods in that zip code that are listed in the data - you can use group_by or distinct to do this. 
 
+###The 21205 zip code has the most calls per capita. 
+
+```{r}
+baltimore_911_with_demographics |> 
+  filter(str_detect(zip_code, "21205") & medage) |> 
+  group_by(neighborhood, zip_code, medage) |> 
+  summarise()
+```
+
 Do an internet search: What are some of those neighborhoods, and what else can you tell me about the population there?
 
 **Write the answer here:**
+###Some of the neighborhoods include Armistead Gardens, Biddle Street, Ellwood Park/Monument, Gay Street, Kresson, Madison-Eastend, McElderry Park and Milton-Montford. I can say that the Baltimore population is majority Black and the median age for the area is 30.6. 
