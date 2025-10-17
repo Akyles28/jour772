@@ -336,12 +336,12 @@ Q4a: Which zip code has the highest rate of calls per 1,000 people? Find the nei
 
 ```{r}
 baltimore_911_with_demographics |> 
-  filter(str_detect(zip_code, "21205") & medage) |> 
-  group_by(neighborhood, zip_code, medage) |> 
+  filter(str_detect(zip_code, "21205")) |> 
+  group_by(neighborhood, zip_code) |> 
   summarise()
 ```
 
 Do an internet search: What are some of those neighborhoods, and what else can you tell me about the population there?
 
 **Write the answer here:**
-###Some of the neighborhoods include Armistead Gardens, Biddle Street, Ellwood Park/Monument, Gay Street, Kresson, Madison-Eastend, McElderry Park and Milton-Montford. I can say that the Baltimore population is majority Black and the median age for the area is 30.6. 
+###Some of the neighborhoods include Armistead Gardens, Biddle Street, Ellwood Park/Monument, Gay Street, Kresson, Madison-Eastend, McElderry Park and Milton-Montford. I can say that the Baltimore population is majority Black and the median age for the area is 34.8, according to google but according to the data set it's 30.6. The population size in this zip code is 13,665 as of 2023, which is a decrease compared to its 2019 population size of 16,239. 
