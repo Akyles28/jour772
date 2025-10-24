@@ -1,0 +1,64 @@
+---
+title: "Reverse_engineering2"
+author: "Akira Kyles"
+date: "2025-10-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(janitor)
+```
+
+```{r}
+deaths <- read_csv("fatal-police-shootings-data.csv")
+```
+```{r}
+deaths_agencies <- read_csv("C:/Users/AKBas/Documents/GitHub/jour772/data-police-shootings/v2/fatal-police-shootings-agencies.csv")
+```
+###Akira Kyles
+```{r}
+#By race, 147 of the women killed were White, 48 Black and 29 Hispanic. Five were Native American, four were Asian and three were other races.
+deaths |> 
+  filter(date < "2020-09-01" &
+           gender== "female") |> 
+  group_by(race) |> 
+  summarise(count=n()) 
+  
+```
+```{r}
+###By percentages, men shot by police were less often White and more often Black or Hispanic. 
+###My data shows this statement as false and it was actually the complete opposite. 
+deaths |> 
+  filter(date > "2020-09-03" &
+           gender== "male") |> 
+  group_by(race) |> 
+  summarise(count = n()) |> 
+  mutate(percentage = (count / sum(count)) * 100)
+```
+### For both genders, a gun was the most common weapon. Of men killed, 57 percent were armed with a gun and of women, 44 percent.
+```{r}
+deaths |> 
+  filter(date > "2020-09-03" &
+           gender== "female" ) |>
+  group_by(armed_with) |> 
+  summarise(count = n()) |> 
+  mutate(percentage = (count / sum(count)) * 100) |> 
+  arrange(desc(percentage))
+
+```
+```{r}
+deaths |> 
+  filter(date > "2020-09-03" &
+           gender== "male" ) |>
+  group_by(armed_with) |> 
+  summarise(count = n()) |> 
+  mutate(percentage = (count / sum(count)) * 100) |> 
+  arrange(desc(percentage))
+```
+###The data, although very slightly higher in percentage by minimal margins, those armed with guns is the highests for both genders. In the Washington Post data, 109 women were reported to be armed with a gun but I found 105 and my percentage increased by 4% compared to Washington Post results. The margins for the male data was much closer with 59% compared to the Washington Post's 57%

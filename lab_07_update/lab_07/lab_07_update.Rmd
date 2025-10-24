@@ -26,7 +26,8 @@ You'll need to load two packages for this: the tidyverse and tidycensus.
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
-
+library(tidyverse)
+library(tidycensus)
 # Load the tidyverse.
 ```
 
@@ -102,33 +103,53 @@ You'll also need to load the list of American Community Survey variables from th
 **Task** load the variables from the 2023 5-year ACS (which is called "acs5") and save them to a dataframe
 
 ```{r}
+acs23 <- acs5_geograph <- load_variables(2023, "acs5")
 ```
 
 ## Answer questions
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2023 5-year estimates? Hint: look at the variables for ACS in 2023 and find the variable for median age. **A1**
+### Prince George's County has the lowest median age, according to ACS. 
 
 ```{r}
+md_age <- get_acs(geography = "county", variables = c(medage = "B01002_001"), 
+                    state = "MD", 
+                    year = 2023)
+```
+```{r}
+md_age |>
+  top_n(20, estimate) |> 
+  arrange(desc(estimate))   
+  
 ```
 
 **Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe created in Q1 to answer this, but you must write code to display only those counties with a median age of at least 50. **A2**
 
+###Talbot County and Worcester County are the only two Maryland counties with a median age of at least 50. 
+
 ```{r}
+md_age |> 
+  filter(estimate >= 50) |>
+  group_by(NAME, estimate)
+  
 ```
 
 **Q3** We're interested in knowing more about Montgomery County zip codes where overdose calls are coming from and the demographic characteristics they possess. In particular, we want to calculate a rate of calls per 1,000 population. To do this, you'll need to:
 
 1.  Load the Montgomery County 911 overdose calls data.
 ```{r}
-
+moco_od <- read_csv('data/montgomery_2022_overdoses.csv')
 ```
 
 2.  Create a new dataframe with the total number of calls for each zip code.
 ```{r}
-
+mcod_zips <- moco_od |>
+  group_by(zip) |> 
+  summarise(count=n()) |> 
+  arrange(desc(count))
 ```
 
-3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data.
+3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data. B09021_001
 ```{r}
 
 ```
