@@ -148,27 +148,50 @@ mcod_zips <- moco_od |>
   group_by(zip) |> 
   summarise(count=n()) |> 
   arrange(desc(count))
+
+head(mcod_zips)
 ```
 
-3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data. B09021_001
+3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data. B09021_001 	
+B15001_001
 ```{r}
+md_adults <- get_acs(geography = "zcta", variables="B09021_001", state="MD", year=2019) |>
+  rename(zip = NAME, count = estimate) |> 
 
+```
+```{r}
+md_adults <- md_adults |> 
+  mutate(zip = str_remove_all(zip, "ZCTA5")) 
+```
+```{r}
+md_adults <- md_adults |> 
+mutate(zip = as.numeric(zip))
 ```
 
 4.  Join the ACS data to the Montgomery County zip code totals dataframe and rename the estimate column to a meaningful name you've given the ACS variable.
 ```{r}
-
+md_moco <- md_adults |> 
+  inner_join(mcod_zips, by=c("zip"))
 ```
 
 5.  Add a column to the joined dataframe that calculates a rate of calls per 1,000 population.
 ```{r}
-
+md_moco <- md_moco |>
+group_by(zip) |>
+summarize(
+  count.x = sum(count.x, na.rm = TRUE), 
+  count.y = sum(count.y, na.rm = TRUE)
+  )|> 
+mutate(
+  count = count.x + count.y, 
+  rate_calls = count/sum(count) * 1000) |>
+arrange(desc(rate_calls)) 
 ```
 
 
 Which zip code has the highest rate of calls? Which has the lowest?
 
-**A3**
+**Zip Code 20906 had the highest rate of calls and 20861 had the lowest rate of calls.**
 
 ```{r}
 ```
@@ -177,5 +200,7 @@ Which zip code has the highest rate of calls? Which has the lowest?
 
 **A4**
 
-**Write your answer here:**
+**20906 is the zip code for Silver Spring, MD in Montgomery County. The population is 71,216 people; the media age is 40 years old; women make 51% of the population; the median household income is $92,964; 9% of the population are below the poverty line; Hispanics have the highest population compared to other races in this zip code. **
+**The 20861 is the zip code for Ashton, MD in Montgomery County. The population is much smaller at only 3,020; this area is also majority female with women as 52% of the population; the median age is 56.1; white people have the highest population compared to other races in the zip code. **
+**I would say there isn't a story here because these two zip codes wouldn't be fair to compare because of the large difference in their population size. It's like comparing grapes to bananas; yes you get multiple units of fruit for both but you're of course going to get much more with grapes, so it makes for a bad comparison.**
 
