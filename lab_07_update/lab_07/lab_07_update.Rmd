@@ -156,7 +156,7 @@ head(mcod_zips)
 B15001_001
 ```{r}
 md_adults <- get_acs(geography = "zcta", variables="B09021_001", state="MD", year=2019) |>
-  rename(zip = NAME, count = estimate) |> 
+  rename(zip = NAME, pop_est = estimate) 
 
 ```
 ```{r}
@@ -179,12 +179,10 @@ md_moco <- md_adults |>
 md_moco <- md_moco |>
 group_by(zip) |>
 summarize(
-  count.x = sum(count.x, na.rm = TRUE), 
-  count.y = sum(count.y, na.rm = TRUE)
+  count = sum(count, na.rm = TRUE), 
   )|> 
-mutate(
-  count = count.x + count.y, 
-  rate_calls = count/sum(count) * 1000) |>
+mutate( 
+  rate_calls = count/sum(pop_est) * 1000) |>
 arrange(desc(rate_calls)) 
 ```
 

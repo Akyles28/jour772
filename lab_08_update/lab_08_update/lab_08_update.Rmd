@@ -5,7 +5,7 @@ date: "2025-10-27"
 output: html_document
 ---
 
-**YOUR NAME HERE:XXXX***
+**Akira Kyles, 10-27-2025***
 
 
 ```{r setup, include=FALSE}
@@ -17,12 +17,30 @@ knitr::opts_chunk$set(echo = TRUE)
 **Task** Create a codeblock and load appropriate packages and settings for this lab. We'll be making some charts, working with dates and retrieving Census data.
 
 ## Load and modify data
+```{r}
+library(tidyverse)
+library(lubridate)
+library(tidycensus)
+library(ggthemes)
+```
 
 **Task** Create a codeblock and load the following data from the data folder:
 
 -   Prince George's County 911 Overdose Calls
 
 You will need to create columns for the date, week and month based on the existing `datetime` column.
+
+```{r}
+pg_od_2022 <- read_csv('data/prince_georges_2022_overdoses.csv')
+```
+```{r}
+pg_od_month <- pg_od_2022 |>
+  mutate(datetime = month(datetime, label=TRUE)) |> 
+  group_by(datetime) |> 
+  summarize(total_calls = n()) |> 
+  arrange(desc(total_calls))
+
+```
 
 ## Questions
 
@@ -36,10 +54,26 @@ You will need to create columns for the date, week and month based on the existi
 **A1.**
 
 ```{r}
+pg_od_month <- pg_od_month|> 
+  mutate(total_calls = (total_calls/sum(total_calls))*100) |> 
+  arrange(desc(total_calls))
+
+```
+
+```{r}
+pg_od_month |> 
+   ggplot() + 
+  geom_bar(aes(x=datetime, weight=total_calls)) +
+  theme_economist() +
+  labs(
+    title="Percentage Rates of Overdose Calls",
+    x = "Month",
+    y = "Total Calls",
+    caption = "source: Prince George's County EMS. Graphic by Akira Kyles. 10/27/2025")
 ```
 
 
-**A1-written answer: Which month saw the greatest percentage of total calls? Write that here:**
+**A1-written answer: Which month saw the greatest percentage of total calls? December saw the highest percentage of total calls. :**
 
 **Q2.** Let's visualize this data on a weekly basis using a line chart. As in Q1, generate a dataframe with the total number of calls for each week, and then create a line chart to show the distribution of calls over time. Your line chart must have:
 
@@ -48,14 +82,31 @@ You will need to create columns for the date, week and month based on the existi
 -   Readable labels
 
 
-
 **A2.**
 
 ```{r}
+pg_od_week <- pg_od_2022 |>
+  group_by(datetime) |> 
+  summarize(total_calls = n()) |> 
+  arrange(desc(total_calls)) 
+```
+```{r}
+pg_od_week |> 
+  ggplot() + 
+  geom_line(aes(x=datetime, y=total_calls)) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  labs(
+    title="Weekly Rates of Overdose Calls",
+    x = "Week",
+    y = "Total Calls",
+    caption = "source: Prince George's County EMS. Graphic by Akira Kyles. 10/27/2025") +
+   theme(
+    axis.text.x = element_text(angle = 90,  hjust=1)
+  )
 ```
 
 
-**A2--written answer:Describe the pattern of results; you may want to look at the data to dig into particular outliers.Write that here:**
+**A2--written answer:Describe the pattern of results; you may want to look at the data to dig into particular outliers. The highest the weekly calls go up to is 2 calls per week. :**
 
 
 **Q3.** A scatterplot is a type of chart that helps us see relationships between two variables. One variable goes on the x axis, the other on the y axis. For each row/observation in our data, a scatterplot puts a circle (or a "point") where the two variables intersect on a grid.
@@ -74,21 +125,44 @@ To answer this question, do the following:
 
 **Q3 - 1.**  Generate a dataframe with the number of 911 calls for each zip code.
 ```{r}
-
+pg_od_zips <- pg_od_2022 |>
+  group_by(zipcode) |> 
+  summarize(total_calls = n()) |> 
+  arrange(desc(total_calls)) |> 
+  clean_names()
+  
 ```
 
 **Q3 -2.**  Get data from the Census Bureau showing median household income for Maryland zip codes.
 ```{r}
-
+acs5_geograph <- load_variables(2023, "acs5") 
+pg_cen_zips <- get_acs(geography = "zcta", variables="B19019_001", state="MD", year=2019)
 ```
+```{r}
+pg_cen_zips <- pg_cen_zips |> 
+  mutate(zipcode = str_remove_all(NAME, "ZCTA5")) |> 
+  clean_names()
+```
+
 
 **Q3 -3.**  Join those two dataframes on their zip code columns, starting with the 911 calls dataframe.
 ```{r}
-
+od_by_zip <- pg_cen_zips |> 
+  left_join(pg_od_zips, by = "zipcode")
 ```
 
 **Q3 -4.**  Make a scatterplot showing the total calls and median income. I didn't show you how to do this, so look it up! Googling "ggplot scatterplot" is a good start. Give it an appropriate title, source, and x and y axis titles. 
 ```{r}
+od_by_zip |> 
+  ggplot(aes(x=estimate, y=zipcode)) + 
+  coord_flip() +
+  geom_point() +
+  labs(
+    title="Overdose Calls by Zipcode and Median Income",
+    x = "Income",
+    y = "Zip Code",
+    caption = "source: Prince George's County EMS. Graphic by Akira Kyles. 10/27/2025") 
+ 
 
 
 ```
@@ -103,5 +177,5 @@ To answer this question, do the following:
 
 **Q4**.  In the answer space below, describe what you see and answer the questions posed above. In a general sense, what do you think this means? Feel free to consider the actual raw values: how would you report out the main point(s) of this chart?
 
-**A4: Write your answer below.**
+**A4: I'm not sure what went wrong with my chart so it's harder to read to answer the question. I think it would've been better to comprehend in the raw data is inner join worked but after trouble shooting multiple times, it still gave zero observations but left-join excludes total calls so I can't fully see if income and zip code play a factor.  **
 
