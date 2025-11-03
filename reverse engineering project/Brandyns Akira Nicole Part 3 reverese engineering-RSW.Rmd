@@ -13,9 +13,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 options(scipen=999)
+install.packages("ggrepel")
+install.packages("ggplot2")
 library(tidyverse)
 library(janitor)
 library(lubridate)
+library(ggplot2)
+library(ggrepel)
+
 ```
 
 ```{r}
@@ -113,18 +118,16 @@ combined_total %>%
 
 **Akira**
 
-#rsw comment: I put a comment on the last version and it was not fixed here. You need to rename the race variables. What is "A"? I don't want to guess. What is "H"? Etc. Rename A as Asian B as Black H as Hispanic.
-
 ```{r}
 fatal_police_shootings_data <- fatal_police_shootings_data|> 
-  mutate(race = case_when(
+  mutate(race_new = case_when(
     str_detect(race, "W") ~ "White",
-        str_detect(race, "B") ~ "Black",
+    str_detect(race, "B") ~ "Black",
     str_detect(race, "A") ~ "Asian",
     str_detect(race, "H") ~ "Hispanic",
     str_detect(race, "O") ~ "Other",
-    str_detect(race, "N") ~ "Native American",
-        .default = NA)
+    str_detect(race, "N") ~ "Native American", 
+    .default = NA)
   )
      
 ```
@@ -134,7 +137,7 @@ fatal_police_shootings_data <- fatal_police_shootings_data|>
 fatal_police_shootings_data |> 
   filter(date < "2020-09-01" &
            gender== "female") |> 
-  group_by(race) |> 
+  group_by(race_new) |> 
   summarise(count=n()) 
 ```
 
@@ -146,7 +149,7 @@ fatal_police_shootings_data |>
 fatal_police_shootings_data |> 
   filter(date < "2020-09-03" &
            gender== "male")|> 
-  group_by(race) |> 
+  group_by(race_new) |> 
   summarise(count = n()) |> 
   mutate(percentage = (count / sum(count)) * 100)
 ```
@@ -154,7 +157,7 @@ fatal_police_shootings_data |>
 ```{r}
 fatal_police_shootings_data |> 
   filter(date < "2020-09-03", gender == "male")  |> 
-  count(race)  |> # count(race) automatically groups and summarizes - it's equivalent to group_by(race) %>% summarise(n = n()) 
+  count(race_new)  |> 
   mutate(pct_men = (n / sum(n)) * 100)
 ```
 
@@ -172,20 +175,37 @@ fatal_police_shootings_data |>
 ```
 
 
-#rsw comment: code fails because the deaths df was not created yet
+
 
 ### For both genders, a gun was the most common weapon. Of men killed, 57 percent were armed with a gun and of women, 44 percent.
 
 ```{r}
-fatal_police_shootings_data |> 
-  filter(date > "2020-09-03" &
-           gender== "female" ) |>
-  group_by(armed_with) |> 
+armed_shootings <- fatal_police_shootings_data |> filter(date > "2020-09-03" &
+           gender== "female" |
+           gender== "male" ) |>
+  group_by(gender, armed_with) |> 
   summarise(count = n()) |> 
-  mutate(percentage = (count / sum(count)) * 100) |> 
+  mutate(percentage = round((count / sum(count)) * 100,2)) 
+```
+```{r}
+armed_shootingsg <- armed_shootings |> 
+  filter(armed_with== "gun" |
+         armed_with== "blunt_object" | 
+         armed_with== "knife"
+         ) |> 
+  group_by(gender, percentage) |> 
   arrange(desc(percentage))
 ```
-#rsw comment: code fails because the deaths df was not created yet
+```{r}
+ armed_shootingsg |> 
+   ggplot() + 
+  geom_line(aes(x = armed_with, y = percentage, color = gender)) +
+  labs(
+    title="Armed Police Shooting by Gender",
+    x = "Weapon",
+    y = "Gender",
+    caption = "source: The Washington. Graphic by Akira Kyles. 10/27/2025")
+```
 ```{r}
 fatal_police_shootings_data |> 
   filter(date > "2020-09-03" &
