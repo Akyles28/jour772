@@ -198,7 +198,7 @@ fatal_police_shootings_data |>
   mutate(pct_men = (n / sum(n)) * 100)
 ```
 
-#rsw comment:your results don't consider the binary nature of the statement: "By percentages, men shot by police were less often White and more often Black or Hispanic." If we calculated white as a binary variable, more people of color (53%) are shot. 
+**The Washington Post article was specific when it said "By percentages, men shot by police were less often White and more often Black or Hispanic." My previous code found this to not be true, but if it were presented more generally, non-white shootings combined would be higher than white shooting.**
 ```{r}
 fatal_police_shootings_data |> 
   filter(date < "2020-09-03", gender == "male")  |> 
