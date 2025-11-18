@@ -263,7 +263,7 @@ Q2. Use the "combined_911" data. Write code to do the following:
 
 ```{r}
 md_counties_acc <- md_counties_acc |>
-  mutate(month(date))
+  mutate(month = month(date, label=TRUE))
 
 md_counties_acc |> 
   group_by(`month(date)`, county) |> 
@@ -303,7 +303,7 @@ Next, show the zip code and population and how many calls occurred in each of th
 
 ```{r}
 baltimore_911_with_demographics |>
-  filter(plt18sp >= "75.2") |>
+  filter(plt18sp >= "75") |>
   group_by(zip_code, plt18sp) |>
    summarise(count=n()) |> 
   arrange(desc(count))
@@ -322,9 +322,9 @@ Add a column that calculates the number of calls per 1,000 people for those zip 
 ```{r}
 baltimore_911_with_demographics |>
   filter(plt18sp >= "75.2") |>
-  group_by(zip_code, plt18sp) |>
+  group_by(zip_code, pop100) |>
    summarise(count=n()) |> 
-  mutate(percapita = (plt18sp/count)*1000) |>
+  mutate(percapita = (count)*1000) |>
   arrange(desc(percapita))
 
 ```

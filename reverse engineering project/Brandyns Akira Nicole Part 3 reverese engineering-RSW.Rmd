@@ -180,12 +180,12 @@ fatal_police_shootings_data |>
 ### For both genders, a gun was the most common weapon. Of men killed, 57 percent were armed with a gun and of women, 44 percent.
 
 ```{r}
-armed_shootings <- fatal_police_shootings_data |> filter(date > "2020-09-03" &
-           gender== "female" |
-           gender== "male" ) |>
-  group_by(gender, armed_with) |> 
+armed_shootings <- fatal_police_shootings_data |> 
+  filter(date > "2020-09-03", armed_with == "gun") |> 
+  group_by(race_new, armed_with) |> 
   summarise(count = n()) |> 
-  mutate(percentage = round((count / sum(count)) * 100,2)) 
+  mutate(percentage = round((count / sum(count)) * 100)) |> 
+  arrange(desc(count))
 ```
 ```{r}
 armed_shootingsg <- armed_shootings |> 

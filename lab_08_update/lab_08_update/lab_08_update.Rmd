@@ -94,7 +94,7 @@ pg_od_week <- pg_od_2022 |>
 pg_od_week |> 
   ggplot() + 
   geom_line(aes(x=datetime, y=total_calls)) +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  scale_x_date(date_breaks = "5 week", date_labels = "%b %d") +
   labs(
     title="Weekly Rates of Overdose Calls",
     x = "Week",
