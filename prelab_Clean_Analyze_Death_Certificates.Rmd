@@ -5,7 +5,7 @@ date: "2025-11-17"
 output: html_document
 ---
 
-**YOUR NAME HERE**
+**Akira Kyles**
 
 
 This exercise will involve cleaning, tabulating and mapping the death certificate data from Cheltenham and Jessup
@@ -15,10 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-# install.packages("htmlwidgets")
-# install.packages("leaflet")
-#install.packages("sf")
-#install.packages("googlesheets4")
+install.packages("htmlwidgets")
+install.packages("leaflet")
+install.packages("sf")
+install.packages("googlesheets4")
 library(tidyverse)
 library(rio)
 library(janitor)
@@ -61,8 +61,16 @@ dc <- dc |>
   mutate(origin = str_squish(birth_place_city_or_town_and_state_write_it_as_bowie_md)) |> 
   mutate(county_origin = case_when(
          str_detect(origin, "(?i)^md\\.?$") ~ "Maryland", 
-         str_detect(origin, "(?i)baltimore county") ~ "Baltimore County",  # Check this FIRST
-         str_detect(origin, "(?i)baltimore") ~ "Baltimore city",
+         str_detect(origin, "(?i)Baltimore, Md.") ~ "Baltimore City",  # Check this FIRST
+         str_detect(origin, "(?i)Baltimore County, Md.") ~ "Baltimore County",
+          str_detect(origin, "(?i)Church Hill") ~ "Queen Anne's County",
+          str_detect(origin, "(?i)Easton, Md.") ~ "Talbot County",
+         str_detect(origin, "(?i)Prince George's County, Md.") ~ "Prince George's County",
+         str_detect(origin, "(?i)Anne Arrundel County, Md.") ~ "Anne Arrundel County",
+         str_detect(origin, "(?i)Baltimore, Maryland") ~ "Baltimore City",
+         str_detect(origin, "(?i)Centreville, Md.") ~ "Queen Anne's County",
+         str_detect(origin, "(?i)Chaptico, St. Marys County, Md.") ~ "St. Marys County",
+         
           is.na(origin) ~ "Unknown",
                TRUE ~ origin
          )) |> 
@@ -202,7 +210,7 @@ dc <- dc |>
   mutate(cause_death_update = str_remove_all(cause_death_update, "^;+|;+$")) |> 
   mutate(cause_death_update = str_remove_all(cause_death_update, "^[;\\s]+|[;\\s]+$")) |> 
   mutate(cause_death_update = str_replace_all (cause_death_update, "blank", "")) |> 
-  separate(col = cause_death_update, into = c("death_cause1", "death_cause2", "death_cause3"), sep = ";", extra = "drop")
+  separate(col = cause_death_update, into = c("death_cause1", "death_cause2", "death_cause3"), sep = ";|,|and|or|&|/", extra = "drop")
 
 ```
 
@@ -226,12 +234,34 @@ Coordinate so you don't overlap.
 ```{r}
 
 death_categories <- death_categories |> 
-  mutate(category = case_when(
-         cause=="Pulmonary Tuberculosis" ~ "tuberculosis",
-        **FILL IN DATA CLEANING HERE**
+  mutate(cause = case_when(
+         cause=="Typhoid Fever" ~ "typhoid",
+         cause=="Typhoid fever" ~ "typhoid",
+         cause=="Typhoid, Contributory Peritonitus" ~ "typhoid",
+         cause=="Primary typhoid fever immediate perf" ~ "typhoid",
+         cause=="Primary: Typhoid fever" ~ "typhoid",
+        cause=="Typhoid, contributory Cardiac Trouble" ~ "typhoid",
+        cause=="Encephalitis" ~ "encephalitis",
+        cause=="Asthma" ~ "asthma",
+        cause==" Asthma" ~ "asthma",
+        cause=="Tuberculosis & Asthma" ~ "asthma",
+        cause=="Tuberculosis, Contributory asthma or asthenia" ~ "asthma",
+        cause=="Pulmonary Phthisis" ~ "phthisis",
+        cause=="Pneumonia phthisis" ~ "phthisis",
+        cause=="Phthisis Pulmonalis" ~ "phthisis",
+        cause=="Phthisis 229" ~ "phthisis",
+        cause=="Phthisis" ~ "phthisis",
+        cause=="Primary: Phthisis 22a" ~ "phthisis",
+        cause==" Phthisis" ~ "phthisis",
+        #cause==""\Pneumonic Phthisis"***" ~ "Phthisis", **This one failed because of the way someone wrote in their response**
+        cause==" Immediate: Asphyxia" ~ "asphyxia",
+        cause=="Consumption" ~ "consumption",
+        cause==" Consumption" ~ "consumption",
+        cause=="Consumption" ~ "consumption",
+        cause=="Consumption after Malaria" ~ "consumption",
          )) |> 
-  **COUNT THE CATEGORIES**
+  count(cause)
 
-
+head(death_categories)
 ```
 
