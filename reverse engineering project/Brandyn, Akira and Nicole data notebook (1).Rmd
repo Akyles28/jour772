@@ -52,6 +52,7 @@ shootings_by_gender <- fatal_police_shootings_data %>%
   filter(gender == "male" | gender == "female")%>% 
 group_by(gender) %>%
 summarise(count = n())
+write.csv(shootings_by_gender, "shootings_by_gender.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -119,6 +120,7 @@ combined_total <- fatal_police_shootings_data %>%
   summarize(total_shot = n(),
   with_mental_illness = sum(was_mental_illness_related == TRUE, na.rm = TRUE),
   pct_with_mental_illness = (with_mental_illness / total_shot) * 100)
+write.csv(combined_total, "combined_total.csv", row.names = FALSE)
 ```
 
 ```{r}
@@ -149,6 +151,7 @@ race_combined_total <- fatal_police_shootings_data %>%
             pct_with_mental_illness = round((with_mental_illness/ total_shot) * 100, 1)
             )%>% 
   arrange(gender, desc(pct_with_mental_illness))
+write.csv(race_combined_total, "race_combined_total.csv", row.names = FALSE)
 ```
 #This ggplot helps visualize how women across all races have a higher percentage of the total shot and with a mental illness than men. I want to also note that the Native American percentage for women is an outlier in this data frame because only 3 out of the 5 women fatally shot had a mental illness, so it makes the percentage way higher. The same thing applies for the "other" data frame. 1 out of the 2 women who were fatally shot classified as "other" had a mental illness and it makes the percentage higher.
 
@@ -171,11 +174,13 @@ race_combined_total %>%
 ```{r}
 #By race, 147 of the women killed were White, 48 Black and 29 Hispanic. Five were Native American, four were Asian and three were other races.
 
-fatal_police_shootings_data |> 
+race_shoot <- fatal_police_shootings_data |> 
   filter(date < "2020-09-01" &
            gender== "female") |> 
   group_by(race_new) |> 
   summarise(count=n()) 
+write.csv(race_shoot, "race_shoot.csv", row.names = FALSE)
+
 ```
 
 ##By percentages, men shot by police were less often White and more often Black or Hispanic. 
@@ -232,6 +237,7 @@ armed_shootingsg <- armed_shootings |>
          ) |> 
   group_by(gender, percentage) |> 
   arrange(desc(percentage))
+write.csv(armed_shootingsg, "armed_shootingsg.csv", row.names = FALSE)
 ```
 **So now my graphic is much cleaner than it would be if I had like 20+ categories for weapons people were armed with when they were shot by police.**
 ```{r}

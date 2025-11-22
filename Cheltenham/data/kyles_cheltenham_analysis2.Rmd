@@ -1,0 +1,80 @@
+---
+title: "Cheltenham Article Data Extraction"
+author: "Akira Kyles"
+date: "11-19-2025"
+output: html_document
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+options(scipen=999)
+install.packages("ggrepel")
+install.packages("ggplot2")
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(ggplot2)
+library(ggrepel)
+```
+```{r}
+cheltenham_ex <- read_csv("~/GitHub/jour772/Cheltenham/data/Cheltenham_Article_Data_Extraction_AK_BF_Resonses1.csv") |> 
+  clean_names()
+```
+```{r}
+cheltenham_ex <- cheltenham_ex|> 
+  mutate(date_of_article = mdy(date_of_article))
+```
+#This code counts the newspaper names 
+```{r}
+cheltenham_ex |> 
+  group_by(newspaper_name) |> 
+  summarize(count= n()) |> 
+  arrange(desc(count))
+  
+```
+#This code counts the articles over time. 
+```{r}
+cheltenham_ex |> 
+  group_by(date_of_article) |> 
+  summarize(count = n()) |> 
+  arrange(date_of_article)
+```
+#This code creates a new data set to establish a timeline of articles over time. 
+```{r}
+news_year <- Cheltenham_ex |> 
+   filter(!is.na(date_of_article)) |> 
+  mutate(year = year(date_of_article)) |>  
+  group_by(year) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count))
+```
+#This code creates a timeline of the articles based on the newspaper name 
+```{r}
+news_year |> 
+  
+  ggplot(aes(x = year, y = count)) +
+   geom_col(fill = "steelblue", position = "dodge") +
+  theme_classic() +
+  labs(x = "Date", 
+       y = "Total Number of Articles", 
+       title = "Cheltenham News Coverage",
+       caption = "Source: Library of Congress. Graphic by Akira Kyles. 11-22-2025")
+```
+#For the set of categories, I think the dataset should add a column called "article_type" and it should include categories such as "Sentencing Announcement", "Recapture Announcement", "Grand Jury Trial" and "Investigation". We can also have an "Other" category for those we don't know how to categorize. 
+#I think it would be easier to create this manually in an excel sheet rather than in R Studio because within the current dataset there's a minimal amount of information to build off of. 
+
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
