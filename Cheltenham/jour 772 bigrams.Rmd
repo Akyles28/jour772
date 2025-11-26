@@ -231,7 +231,7 @@ news <- news |>
   mutate(category = str_remove_all(category, "NA; |; NA")) |> 
   mutate(category = na_if(category, "NA"))
 ```
-```
+
 
 
 
