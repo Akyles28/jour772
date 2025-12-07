@@ -1,15 +1,15 @@
 "gender","race_new","total_shot","with_mental_illness","pct_with_mental_illness"
-"female","Native American",5,3,60
-"female","Other",2,1,50
-"female","White",150,55,36.7
-"female","Asian heritage",6,2,33.3
-"female","Black",48,13,27.1
-"female","Hispanic",32,8,25
-"female",NA,5,1,20
-"male","White",2526,752,29.8
-"male","Asian heritage",112,29,25.9
-"male",NA,322,77,23.9
-"male","Other",18,4,22.2
-"male","Hispanic",972,176,18.1
-"male","Native American",79,13,16.5
-"male","Black",1332,201,15.1
+"female","Asian heritage",11,6,54.5
+"female","Native American",9,4,44.4
+"female","White",254,87,34.3
+"female","Black",88,26,29.5
+"female","Other",4,1,25
+"female","Hispanic",59,13,22
+"female",NA,37,6,16.2
+"male","Other",33,9,27.3
+"male","White",4409,1100,24.9
+"male","Asian heritage",173,39,22.5
+"male","Hispanic",1657,246,14.8
+"male","Black",2401,338,14.1
+"male",NA,1133,159,14
+"male","Native American",137,19,13.9

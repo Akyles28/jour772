@@ -175,13 +175,23 @@ race_combined_total %>%
 #By race, 147 of the women killed were White, 48 Black and 29 Hispanic. Five were Native American, four were Asian and three were other races.
 
 race_shoot <- fatal_police_shootings_data |> 
-  filter(date < "2020-09-01" &
-           gender== "female") |> 
+  filter(gender== "female") |> 
   group_by(race_new) |> 
   summarise(count=n()) 
 write.csv(race_shoot, "race_shoot.csv", row.names = FALSE)
 
 ```
+
+```{r}
+black_women <- fatal_police_shootings_data |> 
+  filter(gender=="female") |> 
+  group_by(city, state) |> 
+  summarise(count=n())
+  
+  
+
+```
+
 
 ##By percentages, men shot by police were less often White and more often Black or Hispanic. 
 
